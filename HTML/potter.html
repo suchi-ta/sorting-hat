@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sorting Hat Quiz</title>
+  <style>
+    body {
+      background: url('https://outsidergaming.com/wp-content/uploads/2023/02/Hogwarts-Legacy-Sorting-Hat-House-Choice.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Georgia', serif;
+      color: #fffbe9;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .quiz-box {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 25px;
+      border-radius: 20px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 12px #d4bbff;
+    }
+
+    .question-slide {
+      display: none;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .question-slide.active {
+      display: block;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #ffcc00;
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 25px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #ffdd57;
+      white-space: pre-line;
+      transition: all 0.5s ease-in-out;
+    }
+
+    #house-img img {
+      max-width: 300px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px #ffc;
+      animation: popIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-box">
+    <h2>Sorting Hat Quiz </h2>
+    <form id="quizForm"></form>
+    <div id="result"></div>
+    <div id="house-img"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        text: "Which trait do you value the most?",
+        options: {
+          Gryffindor: "Bravery",
+          Ravenclaw: "Wisdom",
+          Hufflepuff: "Loyalty",
+          Slytherin: "Ambition"
+        }
+      },
+      {
+        text: "Pick a magical creature to be your companion:",
+        options: {
+          Gryffindor: "Phoenix",
+          Ravenclaw: "Thestral",
+          Hufflepuff: "Niffler",
+          Slytherin: "Basilisk"
+        }
+      },
+      {
+        text: "Your favorite Hogwarts class would be:",
+        options: {
+          Gryffindor: "Defense Against the Dark Arts",
+          Ravenclaw: "Astronomy",
+          Hufflepuff: "Herbology",
+          Slytherin: "Potions"
+        }
+      },
+      {
+        text: "Choose a hangout spot at Hogwarts:",
+        options: {
+          Gryffindor: "Common Room",
+          Ravenclaw: "Library",
+          Hufflepuff: "Greenhouse",
+          Slytherin: "Dungeons"
+        }
+      },
+      {
+        text: "What’s your ideal feast food?",
+        options: {
+          Gryffindor: "Roasted meats & adventure snacks",
+          Ravenclaw: "Fancy desserts & wine pairings",
+          Hufflepuff: "Cozy pies & fresh bread",
+          Slytherin: "Rare exotic dishes"
+        }
+      },
+      {
+        text: "In a duel, what’s your strategy?",
+        options: {
+          Gryffindor: "Charge in with passion",
+          Ravenclaw: "Outsmart them with clever magic",
+          Hufflepuff: "Defend and tire them out",
+          Slytherin: "Use cunning traps & tricks"
+        }
+      },
+      {
+        text: "Your ideal weekend includes:",
+        options: {
+          Gryffindor: "Daring adventures",
+          Ravenclaw: "Learning new spells",
+          Hufflepuff: "Helping a friend",
+          Slytherin: "Plotting success"
+        }
+      },
+      {
+        text: "Which gift would excite you most?",
+        options: {
+          Gryffindor: "A sword that glows in battle",
+          Ravenclaw: "An enchanted book",
+          Hufflepuff: "A self-replenishing picnic basket",
+          Slytherin: "A ring that grants persuasive charm"
+        }
+      },
+      {
+        text: "What puzzle would you enjoy solving?",
+        options: {
+          Gryffindor: "A cursed maze",
+          Ravenclaw: "A riddle sealed with runes",
+          Hufflepuff: "A friendship conflict",
+          Slytherin: "A mystery with secret passages"
+        }
+      },
+      {
+        text: "How do you want to be remembered?",
+        options: {
+          Gryffindor: "For standing up for what's right",
+          Ravenclaw: "For inspiring brilliant minds",
+          Hufflepuff: "For loving deeply",
+          Slytherin: "For shaping the future"
+        }
+      },
+      {
+        text: "Your friends describe you as:",
+        options: {
+          Gryffindor: "Courageous and bold",
+          Ravenclaw: "Thoughtful and wise",
+          Hufflepuff: "Kind and dependable",
+          Slytherin: "Driven and intense"
+        }
+      },
+      {
+        text: "Pick a magical object:",
+        options: {
+          Gryffindor: "Firebolt broom",
+          Ravenclaw: "Time-Turner",
+          Hufflepuff: "Felix Felicis",
+          Slytherin: "Invisibility Cloak"
+        }
+      }
+    ];
+
+    const form = document.getElementById("quizForm");
+    let currentSlide = 0;
+    const houseCount = { Gryffindor: 0, Ravenclaw: 0, Hufflepuff: 0, Slytherin: 0 };
+
+    function showQuestion(index) {
+      const q = questions[index];
+      form.innerHTML = `<div class="question-slide active">
+        <p>${index + 1}. ${q.text}</p>
+        ${Object.entries(q.options).map(([house, label]) => `
+          <label><input type="radio" name="q${index}" value="${house}"> ${label}</label>
+        `).join('')}
+        <button type="button" onclick="nextSlide()">${index === questions.length - 1 ? 'Reveal My House' : 'Next'}</button>
+      </div>`;
+    }
+
+    function nextSlide() {
+      const selected = document.querySelector(`input[name="q${currentSlide}"]:checked`);
+      if (!selected) return alert("Pick an option first, sweet wizard!");
+      houseCount[selected.value]++;
+
+      currentSlide++;
+      if (currentSlide < questions.length) {
+        showQuestion(currentSlide);
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      form.style.display = 'none';
+      const result = document.getElementById("result");
+      const houseImg = document.getElementById("house-img");
+
+      const finalHouse = Object.keys(houseCount).reduce((a, b) => houseCount[a] > houseCount[b] ? a : b);
+
+      const houseMessages = {
+        Gryffindor: " Gryffindor! You're bold, daring, and full of heart.",
+        Ravenclaw: "Ravenclaw! Wise, witty, and wonderfully weird.",
+        Hufflepuff: " Hufflepuff! Loyal, humble, and kind to the core.",
+        Slytherin: " Slytherin! Cunning, ambitious, and destined for greatness."
+      };
+
+      const houseImages = {
+        Gryffindor: "https://i.pinimg.com/originals/55/0a/c9/550ac9839fc15a1b99b4ef3bed3bb5e4.gif",
+        Ravenclaw: "https://media.tenor.com/1h-0h6uDv3kAAAAM/ravenclaw.gif",
+        Hufflepuff: "https://i.pinimg.com/originals/6d/b2/76/6db2766d138ae615bba4962eda6ecb1f.gif",
+        Slytherin: "https://i.pinimg.com/originals/38/c2/87/38c28780d6ff55de4eab999b22c1578a.gif"
+      };
+
+      result.innerText = "";
+
+      let hatLines = [
+        "Hmm... very interesting...",
+        "So much potential... so many qualities...",
+        `But I know just the place for you... \n\n${houseMessages[finalHouse]}`
+      ];
+
+      let lineIndex = 0;
+      function typeLine() {
+        if (lineIndex < hatLines.length) {
+          result.innerText = hatLines[lineIndex];
+          lineIndex++;
+          setTimeout(typeLine, 2500);
+        } else {
+          houseImg.innerHTML = `<img src="${houseImages[finalHouse]}" alt="${finalHouse}">`;
+        }
+      }
+      typeLine();
+    }
+
+    // Start the quiz
+    showQuestion(currentSlide);
+  </script>
+
+</body>
+</html>
