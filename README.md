@@ -11,7 +11,7 @@ This interactive quiz will sort you into one of the four Hogwarts Houses based o
  
  Live Demo
 
-[🔗 Click to Experience the Magic]( )  
+[🔗 Click to Experience the Magic]( https://suchi-ta.github.io/sorting-hat/)  
 
 
 
